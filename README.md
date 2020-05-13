@@ -26,7 +26,7 @@ scrapy crawl example
 * enable DNS Resolver, in the project settings.py file:
 
     ```
-    DNS_RESOLVER = "scrapy_ipfilter_resolver.Resolver"
+    DNS_RESOLVER = "os_scrapy_ipfilter_resolver.Resolver"
     ```
 
 * config IP blacklist, it will raise ``IPFilteredException`` when the request ip in the blacklist
