@@ -34,7 +34,7 @@ class Resolver(ThreadedResolver):
         self.timeout = timeout
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def getHostByName(self, name, timeout=None):
+    def getHostByName(self, name, timeout=(1, 3, 11, 45)):
         if self.cache_allowed is not None:
             if name in self.cache_allowed:
                 return defer.succeed(self.cache[name])
