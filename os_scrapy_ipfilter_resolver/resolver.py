@@ -2,6 +2,7 @@ import logging
 
 from expiringdict import ExpiringDict
 from IPy import IP, IPSet
+from scrapy.resolver import dnscache
 from twisted.internet import defer
 from twisted.internet.base import ThreadedResolver
 
@@ -48,6 +49,7 @@ class Resolver(ThreadedResolver):
         return d
 
     def callback(self, result, name):
+        dnscache[name] = result
         ip = IP(result)
         if ip not in self.allowed and ip in self.disallowed:
             if self.cache_disallowed is not None and name not in self.cache_disallowed:
@@ -72,4 +74,5 @@ class Resolver(ThreadedResolver):
             cache_size = 0
         disallowed = settings.getlist("IP_DISALLOWED", [])
         allowed = settings.getlist("IP_ALLOWED", [])
+        dnscache.limit = cache_size
         return cls(reactor, cache_size, cache_expire, timeout, disallowed, allowed)
