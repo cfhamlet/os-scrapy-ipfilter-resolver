@@ -31,17 +31,18 @@ class Resolver(ThreadedResolver):
                 max_len=cache_size, max_age_seconds=cache_expire
             )
 
-        self.timeout = timeout
+        self.timeout = timeout if isinstance(timeout, tuple) else (timeout,)
         self.logger = logging.getLogger(self.__class__.__name__)
 
-    def getHostByName(self, name, timeout=(1, 3, 11, 45)):
+    def getHostByName(self, name, timeout=()):
         if self.cache_allowed is not None:
             if name in self.cache_allowed:
                 return defer.succeed(self.cache[name])
             elif name in self.cache_disallowed:
                 result = self.cache_disallowed[name]
                 raise IPFilteredException(f"ip filtered {name} {result}")
-        timeout = (self.timeout,)
+        if not timeout:
+            timeout = self.timeout
         d = super(Resolver, self).getHostByName(name, timeout)
         d.addCallback(self.callback, name)
         return d
