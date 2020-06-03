@@ -38,7 +38,7 @@ class Resolver(ThreadedResolver):
     def getHostByName(self, name, timeout=()):
         if self.cache_allowed is not None:
             if name in self.cache_allowed:
-                return defer.succeed(self.cache[name])
+                return defer.succeed(self.cache_allowed[name])
             elif name in self.cache_disallowed:
                 result = self.cache_disallowed[name]
                 raise IPFilteredException(f"ip filtered {name} {result}")
