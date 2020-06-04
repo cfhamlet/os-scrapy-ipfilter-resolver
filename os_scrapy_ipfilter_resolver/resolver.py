@@ -5,6 +5,7 @@ from IPy import IP, IPSet
 from scrapy.resolver import dnscache
 from twisted.internet import defer
 from twisted.internet.base import ThreadedResolver
+from twisted.python import failure
 
 
 class IPFilteredException(Exception):
@@ -41,7 +42,7 @@ class Resolver(ThreadedResolver):
                 return defer.succeed(self.cache_allowed[name])
             elif name in self.cache_disallowed:
                 result = self.cache_disallowed[name]
-                raise IPFilteredException(f"ip filtered {name} {result}")
+                return defer.fail(IPFilteredException(f"ip filtered {name} {result}"))
         if not timeout:
             timeout = self.timeout
         d = super(Resolver, self).getHostByName(name, timeout)
@@ -55,7 +56,7 @@ class Resolver(ThreadedResolver):
             if self.cache_disallowed is not None and name not in self.cache_disallowed:
                 self.logger.warning(f"cache disallowed {name} {result}")
                 self.cache_disallowed[name] = result
-            raise IPFilteredException(f"ip filterd {name} {result}")
+            return failure.Failure(IPFilteredException(f"ip filtered {name} {result}"))
         if self.cache_allowed is not None and name not in self.cache_allowed:
             self.logger.debug(f"cache allowed {name} {result}")
             self.cache_allowed[name] = result
